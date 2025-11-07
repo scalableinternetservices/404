@@ -1,0 +1,72 @@
+class MessagesController < ApplicationController
+  include JwtAuth
+
+  # GET /conversations/:conversation_id/messages
+  def index
+    conv = Conversation.find_by(id: params[:conversation_id])
+    return render json: { error: "Conversation not found" }, status: :not_found unless conv
+
+    msgs = conv.messages.includes(:sender).order(:created_at)
+    render json: msgs.map { |m| message_payload(m) }
+  end
+
+  
+
+  # POST /messages
+  def create
+    conv = Conversation.find_by(id: params[:conversationId] || params[:conversation_id])
+    return render json: { error: "Conversation not found" }, status: :not_found unless visible_conversation?(conv)
+
+    role = current_user.id == conv.initiator_id ? "initiator" : (current_user.id == conv.assigned_expert_id ? "expert" : nil)
+    return render json: { error: "Forbidden" }, status: :forbidden unless role
+
+    msg = conv.messages.build(
+      sender: current_user,
+      sender_role: role,
+      content: params[:content]
+    )
+
+    if msg.save
+      conv.update!(last_message_at: msg.created_at)
+      render json: message_payload(msg), status: :created
+    else
+      render json: { errors: msg.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # PUT /messages/:id/read
+  def read
+    msg = Message.includes(:conversation, :sender).find_by(id: params[:id])
+    return render json: { error: "Message not found" }, status: :not_found unless msg
+    return render json: { error: "Forbidden" }, status: :forbidden unless visible_conversation?(msg.conversation)
+
+    if msg.sender_id == current_user.id
+      return render json: { error: "Cannot mark your own messages as read" }, status: :forbidden
+    end
+
+    msg.update!(is_read: true)
+    render json: { success: true }
+  end
+
+  private
+
+  def visible_conversation?(conv)
+    return false unless conv
+    conv.initiator_id == current_user.id || conv.assigned_expert_id == current_user.id
+  end
+
+  def message_payload(m)
+    {
+      id: m.id.to_s,
+      conversationId: m.conversation_id.to_s,
+      senderId: m.sender_id.to_s,
+      senderUsername: m.sender&.username,
+      senderRole: m.sender_role,
+      content: m.content,
+      timestamp: m.created_at&.iso8601,
+      isRead: m.is_read
+    }
+  end
+
+  
+end

@@ -1,0 +1,82 @@
+class UpdatesController < ApplicationController
+  include JwtAuth
+
+  # GET /api/conversations/updates
+  def conversations
+    since = parse_time(params[:since])
+    scope = Conversation
+              .includes(:initiator, :assigned_expert)
+              .where("initiator_id = :id OR assigned_expert_id = :id", id: current_user.id)
+    if since
+      scope = scope.where("updated_at > :since OR (last_message_at IS NOT NULL AND last_message_at > :since)", since: since)
+    end
+    convs = scope.order(updated_at: :desc)
+    render json: convs.map { |c| conversation_payload(c) }
+  end
+
+  # GET /api/messages/updates
+  def messages
+    since = parse_time(params[:since])
+    conv_ids = Conversation.where("initiator_id = :id OR assigned_expert_id = :id", id: current_user.id).pluck(:id)
+    msgs = Message.where(conversation_id: conv_ids)
+    msgs = msgs.where("created_at > ?", since) if since
+    msgs = msgs.includes(:sender).order(:created_at)
+    render json: msgs.map { |m| message_payload(m) }
+  end
+
+  # GET /api/expert-queue/updates
+  def expert_queue
+    since = parse_time(params[:since])
+    waiting = Conversation.where(status: 'waiting')
+    assigned = Conversation.where(status: 'active', assigned_expert_id: current_user.id)
+
+    if since
+      waiting = waiting.where("updated_at > :since OR (last_message_at IS NOT NULL AND last_message_at > :since)", since: since)
+      assigned = assigned.where("updated_at > :since OR (last_message_at IS NOT NULL AND last_message_at > :since)", since: since)
+    end
+
+    waiting = waiting.includes(:initiator, :assigned_expert).order(updated_at: :desc)
+    assigned = assigned.includes(:initiator, :assigned_expert).order(updated_at: :desc)
+
+    render json: {
+      waitingConversations: waiting.map { |c| conversation_payload(c) },
+      assignedConversations: assigned.map { |c| conversation_payload(c) }
+    }
+  end
+
+  private
+
+  def parse_time(val)
+    return nil if val.blank?
+    Time.iso8601(val) rescue nil
+  end
+
+  def conversation_payload(c)
+    {
+      id: c.id.to_s,
+      title: c.title,
+      status: c.status,
+      questionerId: c.initiator_id.to_s,
+      questionerUsername: c.initiator&.username,
+      assignedExpertId: c.assigned_expert_id&.to_s,
+      assignedExpertUsername: c.assigned_expert&.username,
+      createdAt: c.created_at&.iso8601,
+      updatedAt: c.updated_at&.iso8601,
+      lastMessageAt: c.last_message_at&.iso8601,
+      unreadCount: 0
+    }
+  end
+
+  def message_payload(m)
+    {
+      id: m.id.to_s,
+      conversationId: m.conversation_id.to_s,
+      senderId: m.sender_id.to_s,
+      senderUsername: m.sender&.username,
+      senderRole: m.sender_role,
+      content: m.content,
+      timestamp: m.created_at&.iso8601,
+      isRead: m.is_read
+    }
+  end
+end
