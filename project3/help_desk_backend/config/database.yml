@@ -72,3 +72,8 @@ production:
     <<: *primary_production
     database: help_desk_backend_production_cable
     migrations_paths: db/cable_migrate
+  database: <%= ENV['RDS_DB_NAME'] %>
+  host: <%= ENV['RDS_HOSTNAME'] %>
+  password: <%= ENV['RDS_PASSWORD'] %>
+  port: <%= ENV['RDS_PORT'] %>
+  username: <%= ENV['RDS_USERNAME'] %>
