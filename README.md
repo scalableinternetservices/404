@@ -26,7 +26,7 @@ Horizontal Scaling 1 (4× m7g.medium app, db.m5.large)
 eb create horiz1 --envvars SECRET_KEY_BASE=BADSECRET,RAILS_ENV=production,RAILS_SERVE_STATIC_FILES=true \
   -db.engine mysql -db.i db.m5.large -db.user u \
   -i m7g.medium
-eb scale 4 --environment horiz1
+eb scale 4 horiz1
 eb status horiz1
 ```
 
@@ -35,7 +35,7 @@ Horizontal Scaling 2 + Larger DB (4× m7g.medium app, db.m5.xlarge)
 eb create horiz2 --envvars SECRET_KEY_BASE=BADSECRET,RAILS_ENV=production,RAILS_SERVE_STATIC_FILES=true \
   -db.engine mysql -db.i db.m5.xlarge -db.user u \
   -i m7g.medium
-eb scale 4 --environment horiz2
+eb scale 4 horiz2
 eb status horiz2
 ```
 
