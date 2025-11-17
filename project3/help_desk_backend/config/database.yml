@@ -57,9 +57,11 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: help_desk_backend_production
-    username: help_desk_backend
-    password: <%= ENV["HELP_DESK_BACKEND_DATABASE_PASSWORD"] %>
+    database: <%= ENV.fetch("RDS_DB_NAME") { "help_desk_backend_production" } %>
+    username: <%= ENV.fetch("RDS_USERNAME") { "help_desk_backend" } %>
+    password: <%= ENV.fetch("RDS_PASSWORD") { ENV["HELP_DESK_BACKEND_DATABASE_PASSWORD"] } %>
+    host: <%= ENV.fetch("RDS_HOSTNAME") { ENV.fetch("DB_HOST") { "127.0.0.1" } } %>
+    port: <%= ENV.fetch("RDS_PORT") { 3306 } %>
   cache:
     <<: *primary_production
     database: help_desk_backend_production_cache
@@ -72,8 +74,4 @@ production:
     <<: *primary_production
     database: help_desk_backend_production_cable
     migrations_paths: db/cable_migrate
-  database: <%= ENV['RDS_DB_NAME'] %>
-  host: <%= ENV['RDS_HOSTNAME'] %>
-  password: <%= ENV['RDS_PASSWORD'] %>
-  port: <%= ENV['RDS_PORT'] %>
-  username: <%= ENV['RDS_USERNAME'] %>
+    
