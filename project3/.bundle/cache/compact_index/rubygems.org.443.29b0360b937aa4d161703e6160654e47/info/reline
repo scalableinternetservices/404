@@ -68,3 +68,4 @@
 0.6.0 io-console:~> 0.5|checksum:57620375dcbe56ec09bac7192bfb7460c716bbf0054dc94345ecaa5438e539d2,ruby:>= 2.6
 0.6.1 io-console:~> 0.5|checksum:1afcc9d7cb1029cdbe780d72f2f09251ce46d3780050f3ec39c3ccc6b60675fb,ruby:>= 2.6
 0.6.2 io-console:~> 0.5|checksum:1dad26a6008872d59c8e05244b119347c9f2ddaf4a53dce97856cd5f30a02846,ruby:>= 2.6
+0.6.3 io-console:~> 0.5|checksum:1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835,ruby:>= 2.6

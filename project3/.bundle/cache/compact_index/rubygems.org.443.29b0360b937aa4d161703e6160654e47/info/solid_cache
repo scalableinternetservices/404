@@ -19,3 +19,5 @@
 1.0.6 activejob:>= 7.2,activerecord:>= 7.2,railties:>= 7.2|checksum:fe1acf73fbe4a6a53620425317949082d3b99e0cfd35416106b56220fa66c311
 1.0.7 activejob:>= 7.2,activerecord:>= 7.2,railties:>= 7.2|checksum:58e690ccee057be7351f21b1940d5f9cf6bb132074316e70478e554a79e6a490
 1.0.8 activejob:>= 7.2,activerecord:>= 7.2,railties:>= 7.2|checksum:6afab113f966aa6cfccaa9a79d6e37479fb439e94e9d39d713e86fb1d778cc02
+1.0.9 activejob:>= 7.2,activerecord:>= 7.2,railties:>= 7.2|checksum:0fa0253d3eb0b1f4a4d228e08eaea65eb6843386ab91dc671586a6e85e616298
+1.0.10 activejob:>= 7.2,activerecord:>= 7.2,railties:>= 7.2|checksum:bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
