@@ -114,3 +114,4 @@
 6.14.2 erb:>= 0,psych:>= 4.0.0|checksum:9fdd44df130f856ae70cc9a264dfd659b9b40de369b16581f4ab746e42439226,ruby:>= 2.6.0,rubygems:>= 2.2
 6.15.0 erb:>= 0,psych:>= 4.0.0,tsort:>= 0|checksum:0f0e68864969e77c2acd4063a9585baa5216d362701d827a93feaa9cbae78b05,ruby:>= 2.6.0,rubygems:>= 2.2
 6.15.1 erb:>= 0,psych:>= 4.0.0,tsort:>= 0|checksum:28bfac73cd8b226a8079f53a564ceaccdb5b4480e34335100001570ddb1a481a,ruby:>= 2.6.0,rubygems:>= 2.2
+6.16.0 erb:>= 0,psych:>= 4.0.0,tsort:>= 0|checksum:d0ce6f787027a24e480c1acb9f3110125213cb5df6806fd7832d5a1b8f26a205,ruby:>= 2.6.0,rubygems:>= 2.2

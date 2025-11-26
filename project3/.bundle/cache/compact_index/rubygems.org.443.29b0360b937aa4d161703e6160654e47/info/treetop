@@ -43,3 +43,6 @@
 1.6.12 polyglot:~> 0.3|checksum:ed48add684a2d7a8fd6e3b8b027d8ee5983b50977ae691913131a24f1746ac29
 1.6.14 polyglot:~> 0.3|checksum:ba31d1911ce53dbc68208b9e6b421d48d16bfc99551e5efb5bc71bbc8fc7aed4
 1.6.15 polyglot:~> 0.3|checksum:4bb879f65c53877a04be3824a346f0de6ca92aa8890bfae613d1bdd9ad7f455b
+1.6.16 polyglot:~> 0.3|checksum:93ced961d854131a968215c19feebbe2483bcaad8ae1bf3c643e2f91c6c45117
+1.6.17 polyglot:~> 0.3|checksum:7f52b5ffad949c974be091efb96d814a7c7a008e55e81d93bf267a73b62d2ca5
+1.6.18 polyglot:~> 0.3|checksum:a3043f32f1c652aa2abdf3a3848edb2d2f69897257af2675516ac61355c183da

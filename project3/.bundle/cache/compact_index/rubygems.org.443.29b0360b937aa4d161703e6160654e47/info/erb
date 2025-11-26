@@ -29,3 +29,5 @@
 5.1.3 |checksum:566e53057b6ba48699f824b578473b391fa8aef100aa14afad1c46725fae0e67,ruby:>= 3.2.0
 5.1.2-java |checksum:e0aab9a46232b7c0e16517dd825ea6739d780545cd4fea1bbac26766d64d3ec6,ruby:>= 3.2.0
 5.1.3-java |checksum:ee38dbaf7bd3c4a9b67ea51cc0b5ca8debd8223009cecac9918aa017fcdc8581,ruby:>= 3.2.0
+6.0.0 |checksum:2730893f9d8c9733f16cab315a4e4b71c1afa9cabc1a1e7ad1403feba8f52579,ruby:>= 3.2.0
+6.0.0-java |checksum:6537c84b596d889c4e20d87da41b38664e79bfe0af812ba7ea2a82a7ebf0ed62,ruby:>= 3.2.0

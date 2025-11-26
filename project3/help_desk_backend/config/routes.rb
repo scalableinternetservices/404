@@ -49,4 +49,9 @@ Rails.application.routes.draw do
       get "/messages/updates", to: "updates#messages"
       get "/expert-queue/updates", to: "updates#expert_queue"
     end
+
+  # Universal LLM call endpoint: POST /llm
+  # Body JSON: { "system_prompt": "...", "user_prompt": "..." }
+  # Response: { ok: true, message: "...", model_id: "...", fake: false, usage: { input_tokens: ..., output_tokens: ... }, latency_ms: 123 }
+  post "/llm", to: "llm#create"
 end

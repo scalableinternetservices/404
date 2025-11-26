@@ -125,3 +125,5 @@
 1.44.0 bigdecimal:>= 0,mize:~> 0.6,sync:>= 0|checksum:6d8323b69795c86bcbb584cb3060e56da5ac69e26ff820e05ae71ccb757c0917,ruby:>= 3.1
 1.44.1 bigdecimal:>= 0,mize:~> 0.6,sync:>= 0|checksum:ad67d88d0702d8edf35a9a1e70fb1a8859876661b7dd5b045f6a1716be5dc76d,ruby:>= 3.1
 1.45.0 bigdecimal:>= 0,mize:~> 0.6,sync:>= 0|checksum:5a84489b895c5154afba454ab7643bf88d21ea57dff31a46ec15e29007f93b71,ruby:>= 3.1
+1.46.0 bigdecimal:>= 0,mize:~> 0.6,sync:>= 0|checksum:7129543bf4587a0b0ea41fa7e694b7040af3e53ff1df841b688f43c46a7ef40a,ruby:>= 3.1
+1.47.0 bigdecimal:>= 0,mize:~> 0.6,sync:>= 0|checksum:5f9ea1ea7297c94779cab20c72094e77337b71629442d59caf185e5723cbad51,ruby:>= 3.1

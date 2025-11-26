@@ -204,3 +204,4 @@
 6.4.0 temple:>= 0.8.2,thor:>= 0,tilt:>= 0|checksum:b2e20652be52ac9a3be328e8ff411ad007e82fc4e78e1a5cdefad537a697cf6a,ruby:>= 2.1.0
 7.0.0 temple:>= 0.8.2,thor:>= 0,tilt:>= 0|checksum:0b4e0a3a23e7b0bdff8544f2d3d0bbc9266d3782e8ae55b15916b3e94cef6c91,ruby:>= 3.2.0
 7.0.1 temple:>= 0.8.2,thor:>= 0,tilt:>= 0|checksum:3128dafc6933e7e039da6ef4514bb7b5315fb41e05d32b9b919fc9bf2d0395e3,ruby:>= 3.2.0
+7.0.2 temple:>= 0.8.2,thor:>= 0,tilt:>= 0|checksum:c5b47858dddf533c182f5e80d00fa1768c8b01708611de8e20418a50720c03aa,ruby:>= 3.2.0

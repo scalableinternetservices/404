@@ -83,3 +83,5 @@
 2.33.2 activesupport:>= 4.2.0,lint_roller:~> 1.1,rack:>= 1.1,rubocop:< 2.0&>= 1.75.0,rubocop-ast:< 2.0&>= 1.44.0|checksum:72499241a6d67239799618f3897b095a548099ca28f8a740a0dcd3cc252b294c,ruby:>= 2.7.0
 2.33.3 activesupport:>= 4.2.0,lint_roller:~> 1.1,rack:>= 1.1,rubocop:< 2.0&>= 1.75.0,rubocop-ast:< 2.0&>= 1.44.0|checksum:848c011b58c1292f3066246c9eb18abf6ffcfbce28bc57c4ab888bbec79af74b,ruby:>= 2.7.0
 2.33.4 activesupport:>= 4.2.0,lint_roller:~> 1.1,rack:>= 1.1,rubocop:< 2.0&>= 1.75.0,rubocop-ast:< 2.0&>= 1.44.0|checksum:34ec8f6637706dc224483d949ccc88b3e41596a81a11a1ec0c7d74ecbea356b5,ruby:>= 2.7.0
+2.34.0 activesupport:>= 4.2.0,lint_roller:~> 1.1,rack:>= 1.1,rubocop:< 2.0&>= 1.75.0,rubocop-ast:< 2.0&>= 1.44.0|checksum:d90eb95655bdb3a2276eff8daa8972b35d9b0fd0c0a71e812c714213a056d71e,ruby:>= 2.7.0
+2.34.1 activesupport:>= 4.2.0,lint_roller:~> 1.1,rack:>= 1.1,rubocop:< 2.0&>= 1.75.0,rubocop-ast:< 2.0&>= 1.44.0|checksum:77a092ed1f05405a9e2ca1bee3d13b78ed0c3cc5342671a2d4f7de2056ee6a6e,ruby:>= 2.7.0
