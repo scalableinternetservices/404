@@ -84,6 +84,11 @@ export default function Sidebar({
                     ? `Assigned Expert: ${conv.assignedExpertUsername || conv.assignedExpertId}`
                     : 'Waiting for Expert'}
                 </span>
+                {conv.summary && (
+                  <p className="text-xs text-gray-600 break-words">
+                    {conv.summary}
+                  </p>
+                )}
               </div>
             </CardHeader>
           </Card>
