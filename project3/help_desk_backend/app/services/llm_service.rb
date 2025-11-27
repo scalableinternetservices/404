@@ -41,6 +41,33 @@ class LlmService
     summary
   end
 
+  def self.auto_response(conversation, user_message)
+    expert = conversation.assigned_expert
+    return nil unless expert&.expert_profile
+
+    faq_links = expert.expert_profile.knowledge_base_links || []
+    bio = expert.expert_profile.bio
+
+    prompt = build_auto_response_prompt(
+      conversation.title,
+      user_message,
+      faq_links,
+      bio,
+      expert.username
+    )
+
+    client = BedrockClient.new(model_id: MODEL_ID)
+
+    response = client.call(
+      system_prompt: "You are an expert assistant. Answer based ONLY on the expert's KB Links and Bio.",
+      user_prompt: prompt
+    )
+    
+    puts prompt
+
+    response[:output_text].strip
+  end
+
   private
 
   def self.build_prompt_for_exper_user(conversation)
@@ -86,5 +113,28 @@ class LlmService
     PROMPT
   end
   
+  def self.build_auto_response_prompt(title, user_msg, kb_links, bio, username)
+    formatted_kb = kb_links.map { |l| "- #{l}" }.join("\n")
+
+    <<~PROMPT
+    The expert assigned to this conversation is: #{username}.
+
+    Expert Bio:
+    #{bio}
+
+    Expert Knowledge Base (FAQ):
+    #{formatted_kb}
+
+    Task:
+    - Answer the user's question based ONLY on the above FAQ and bio.
+    - If the FAQ does not help, reply with: "Let me check and get back to you shortly."
+    - Keep the answer short and helpful.
+
+    User asked:
+    "#{user_msg}"
+
+    Generate the auto-response now.
+    PROMPT
+  end
 
 end
