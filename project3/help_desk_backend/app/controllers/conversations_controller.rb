@@ -22,7 +22,14 @@ class ConversationsController < ApplicationController
   # POST /conversations
   def create
     conv = Conversation.new(title: params[:title], initiator: current_user, status: "waiting")
+    
     if conv.save
+      # LLM generated expert assignment
+      expert_user = LlmService.get_expert(conv)
+      puts expert_user.username
+      conv.update!(assigned_expert_id: expert_user.id, status: 'active')
+      ExpertAssignment.create!(conversation_id: conv.id, expert_id: expert_user.id, status: 'active', assigned_at: Time.current)
+    
       render json: conversation_payload(conv), status: :created
     else
       render json: { errors: conv.errors.full_messages }, status: :unprocessable_entity
