@@ -29,7 +29,7 @@ services:
     volumes:
       - .:/app
       - bundle_cache:/usr/local/bundle
-      - ${HOME}/.aws:/app/.aws:ro 
+      - ${HOME}/.aws:/app/.aws:ro
     depends_on:
       - db
     stdin_open: true

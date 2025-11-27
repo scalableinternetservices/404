@@ -83,8 +83,7 @@ class BedrockClient
   private
 
   def should_fake_llm_call?
-   return false
-    # !(ENV["ALLOW_BEDROCK_CALL"] == "true") or Current.might_be_locust_request
+    !(ENV["ALLOW_BEDROCK_CALL"] == "true") or Current.might_be_locust_request
   end
 
   # Converse can return multiple content blocks; we’ll just join all text.
