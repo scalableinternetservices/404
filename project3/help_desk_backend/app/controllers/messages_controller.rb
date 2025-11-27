@@ -8,9 +8,9 @@ class MessagesController < ApplicationController
 
     msgs = conv.messages.includes(:sender).order(:created_at)
 
-    puts "debugging is on"
-    summary_text = LlmService.summarize_conversation(conv)
-    puts summary_text
+    # puts "debugging is on"
+    # summary_text = LlmService.summarize_conversation(conv)
+    # puts summary_text
     
 
     render json: msgs.map { |m| message_payload(m) }
