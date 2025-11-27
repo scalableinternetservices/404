@@ -7,15 +7,28 @@ class ConversationsController < ApplicationController
               .includes(:initiator, :assigned_expert)
               .where("initiator_id = :id OR assigned_expert_id = :id", id: current_user.id)
               .order(updated_at: :desc)
+    
     render json: convs.map { |c| conversation_payload(c) }
   end
 
-  
+  # GET /conversations/:id/summary
+  def summary
+    conv = find_visible_conversation!(params[:id])
+    return unless conv
+
+    summary_text = LlmService.summarize_conversation(conv)
+
+    render json: {
+      conversationId: conv.id.to_s,
+      summary: summary_text
+    }, status: :ok
+  end  
 
   # GET /conversations/:id
   def show
     conv = find_visible_conversation!(params[:id])
-    return unless conv 
+    return unless conv
+    
     render json: conversation_payload(conv)
   end
 

@@ -22,6 +22,13 @@ Rails.application.routes.draw do
  
   get "/health", to: "health#index"
 
+  resources :conversations, only: [:index, :show, :create] do
+    member do
+      get :summary
+    end
+  end
+
+
   resources :conversations, only: [:index, :show, :create]
   resources :messages, only: [:create] do
     member do
@@ -32,6 +39,8 @@ Rails.application.routes.draw do
   resources :conversations, only: [] do
     resources :messages, only: [:index], controller: :messages
   end
+
+  
 
   scope :expert do
     get :queue, to: "expert#queue"
@@ -49,4 +58,9 @@ Rails.application.routes.draw do
       get "/messages/updates", to: "updates#messages"
       get "/expert-queue/updates", to: "updates#expert_queue"
     end
+
+  # Universal LLM call endpoint: POST /llm
+  # Body JSON: { "system_prompt": "...", "user_prompt": "..." }
+  # Response: { ok: true, message: "...", model_id: "...", fake: false, usage: { input_tokens: ..., output_tokens: ... }, latency_ms: 123 }
+  post "/llm", to: "llm#create"
 end

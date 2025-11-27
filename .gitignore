@@ -1,1 +1,7 @@
 *.pyc
+.bundle
+.DS_STORE
+node_modules
+.bash_history
+.irb_history
+front-end/node_modules

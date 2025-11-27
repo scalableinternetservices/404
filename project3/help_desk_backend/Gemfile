@@ -45,6 +45,7 @@ end
 gem "rack-cors" # For handling Cross-Origin Resource Sharing (CORS) requests from the frontend
 gem "jwt" # For JSON Web Token authentication (if you choose JWT over sessions)
 gem "activerecord-session_store" # For database-backed session storage
+gem "aws-sdk-bedrockruntime" # For Amazon Bedrock LLM runtime
 group :test do
    gem "mocha"
 end
