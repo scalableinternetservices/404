@@ -18,16 +18,9 @@ Rails.application.routes.draw do
 
 
   post "/users/register", to: "users#register"
- 
- 
+
+
   get "/health", to: "health#index"
-
-  resources :conversations, only: [:index, :show, :create] do
-    member do
-      get :summary
-    end
-  end
-
 
   resources :conversations, only: [:index, :show, :create]
   resources :messages, only: [:create] do
@@ -35,16 +28,16 @@ Rails.application.routes.draw do
       put :read
     end
   end
- 
+
   resources :conversations, only: [] do
     resources :messages, only: [:index], controller: :messages
   end
 
-  
+
 
   scope :expert do
     get :queue, to: "expert#queue"
-   
+
     post "/conversations/:conversation_id/claim", to: "expert#claim"
     post "/conversations/:conversation_id/unclaim", to: "expert#unclaim"
     get :profile, to: "expert#profile"
@@ -52,7 +45,7 @@ Rails.application.routes.draw do
     get "/assignments/history", to: "expert#assignments_history"
   end
 
-    
+
     scope :api do
       get "/conversations/updates", to: "updates#conversations"
       get "/messages/updates", to: "updates#messages"

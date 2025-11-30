@@ -7,42 +7,31 @@ class ConversationsController < ApplicationController
               .includes(:initiator, :assigned_expert)
               .where("initiator_id = :id OR assigned_expert_id = :id", id: current_user.id)
               .order(updated_at: :desc)
-    
+
     render json: convs.map { |c| conversation_payload(c) }
   end
-
-  # GET /conversations/:id/summary
-  def summary
-    conv = find_visible_conversation!(params[:id])
-    return unless conv
-
-    summary_text = LlmService.summarize_conversation(conv)
-
-    render json: {
-      conversationId: conv.id.to_s,
-      summary: summary_text
-    }, status: :ok
-  end  
 
   # GET /conversations/:id
   def show
     conv = find_visible_conversation!(params[:id])
     return unless conv
-    
+
     render json: conversation_payload(conv)
   end
 
   # POST /conversations
   def create
     conv = Conversation.new(title: params[:title], initiator: current_user, status: "waiting")
-    
+
     if conv.save
       # LLM generated expert assignment
       expert_user = LlmService.get_expert(conv)
-      puts expert_user.username
-      conv.update!(assigned_expert_id: expert_user.id, status: 'active')
-      ExpertAssignment.create!(conversation_id: conv.id, expert_id: expert_user.id, status: 'active', assigned_at: Time.current)
-    
+      if expert_user
+        puts expert_user.username
+        conv.update!(assigned_expert_id: expert_user.id, status: 'active')
+        ExpertAssignment.create!(conversation_id: conv.id, expert_id: expert_user.id, status: 'active', assigned_at: Time.current)
+      end
+
       render json: conversation_payload(conv), status: :created
     else
       render json: { errors: conv.errors.full_messages }, status: :unprocessable_entity
@@ -71,9 +60,10 @@ class ConversationsController < ApplicationController
       createdAt: c.created_at&.iso8601,
       updatedAt: c.updated_at&.iso8601,
       lastMessageAt: c.last_message_at&.iso8601,
-      unreadCount: 0
+      unreadCount: 0,
+      summary: LlmService.summarize_conversation(c)
     }
   end
 
-  
+
 end

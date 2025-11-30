@@ -63,7 +63,8 @@ class UpdatesController < ApplicationController
       createdAt: c.created_at&.iso8601,
       updatedAt: c.updated_at&.iso8601,
       lastMessageAt: c.last_message_at&.iso8601,
-      unreadCount: 0
+      unreadCount: 0,
+      summary: LlmService.summarize_conversation(c)
     }
   end
 

@@ -92,7 +92,7 @@ class ExpertController < ApplicationController
       if links_param.nil?
         attrs[:knowledge_base_links] = []
       elsif links_param.is_a?(Array)
-        
+
         attrs[:knowledge_base_links] = normalize_links(links_param)
       else
         return render json: { error: "knowledgeBaseLinks must be an array" }, status: :unprocessable_entity
@@ -148,7 +148,8 @@ class ExpertController < ApplicationController
       createdAt: c.created_at&.iso8601,
       updatedAt: c.updated_at&.iso8601,
       lastMessageAt: c.last_message_at&.iso8601,
-      unreadCount: 0
+      unreadCount: 0,
+      summary: LlmService.summarize_conversation(c)
     }
   end
 
@@ -157,7 +158,7 @@ class ExpertController < ApplicationController
     Time.iso8601(val) rescue nil
   end
 
- 
+
   def normalize_links(list)
     Array(list).filter_map do |raw|
       s = raw.to_s.strip
