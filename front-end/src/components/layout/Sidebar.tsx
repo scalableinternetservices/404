@@ -84,6 +84,11 @@ export default function Sidebar({
                     ? `Assigned Expert: ${conv.assignedExpertUsername || conv.assignedExpertId}`
                     : 'Waiting for Expert'}
                 </span>
+                {conv.summary && (
+                  <p className="text-xs text-gray-600 break-words">
+                    {conv.summary}
+                  </p>
+                )}
               </div>
             </CardHeader>
           </Card>
@@ -104,9 +109,16 @@ export default function Sidebar({
               className="px-1"
               onClick={() => onConversationSelect(conv.id)}
             >
-              <CardTitle className="text-sm break-words text-left">
-                {conv.title}
-              </CardTitle>
+              <div className="space-y-1">
+                <CardTitle className="text-sm break-words text-left">
+                  {conv.title}
+                </CardTitle>
+                {conv.summary && (
+                  <p className="text-xs text-gray-600 break-words text-left">
+                    {conv.summary}
+                  </p>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="flex gap-2">
               <Button
@@ -142,6 +154,11 @@ export default function Sidebar({
                 <CardTitle className="text-sm break-words text-left">
                   {conv.title}
                 </CardTitle>
+                {conv.summary && (
+                  <p className="text-xs text-gray-600 break-words text-left">
+                    {conv.summary}
+                  </p>
+                )}
               </div>
             </CardHeader>
             <CardContent className="flex gap-2">

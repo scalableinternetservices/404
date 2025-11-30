@@ -41,6 +41,7 @@ export interface Conversation {
   updatedAt: string;
   lastMessageAt: string;
   unreadCount: number;
+  summary: string;
 }
 
 export interface CreateConversationRequest {
