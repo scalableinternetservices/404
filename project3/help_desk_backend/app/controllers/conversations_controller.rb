@@ -25,12 +25,7 @@ class ConversationsController < ApplicationController
 
     if conv.save
       # LLM generated expert assignment
-      expert_user = LlmService.get_expert(conv)
-      if expert_user
-        puts expert_user.username
-        conv.update!(assigned_expert_id: expert_user.id, status: 'active')
-        ExpertAssignment.create!(conversation_id: conv.id, expert_id: expert_user.id, status: 'active', assigned_at: Time.current)
-      end
+      AutoassignExpertJob.perform_async(conv.id)
 
       render json: conversation_payload(conv), status: :created
     else
