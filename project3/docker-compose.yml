@@ -26,7 +26,7 @@ services:
       - AWS_SHARED_CREDENTIALS_FILE=/app/.aws/cs291_credentials
       - AWS_PROFILE=scalableinternetservices
       - AWS_REGION=us-west-2
-      - ALLOW_BEDROCK_CALL="true"
+      - ALLOW_BEDROCK_CALL=true
     volumes:
       - .:/app
       - bundle_cache:/usr/local/bundle
@@ -65,7 +65,7 @@ services:
       - AWS_SHARED_CREDENTIALS_FILE=/app/.aws/cs291_credentials
       - AWS_PROFILE=scalableinternetservices
       - AWS_REGION=us-west-2
-      - ALLOW_BEDROCK_CALL="true"
+      - ALLOW_BEDROCK_CALL=true
     volumes:
       - .:/app
       - bundle_cache:/usr/local/bundle
