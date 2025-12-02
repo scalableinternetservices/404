@@ -258,6 +258,8 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
+    redis-client (0.26.1)
+      connection_pool
     regexp_parser (2.11.3)
     reline (0.6.2)
       io-console (~> 0.5)
@@ -295,6 +297,12 @@ GEM
       logger
     ruby2_keywords (0.0.5)
     securerandom (0.4.1)
+    sidekiq (8.0.10)
+      connection_pool (>= 2.5.0)
+      json (>= 2.9.0)
+      logger (>= 1.6.2)
+      rack (>= 3.1.0)
+      redis-client (>= 0.23.2)
     solid_cable (3.0.12)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -355,6 +363,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 8.1.1)
   rubocop-rails-omakase
+  sidekiq (~> 8.0)
   solid_cable
   solid_cache
   solid_queue

@@ -1,3 +1,5 @@
+require "sidekiq/web"
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -56,4 +58,6 @@ Rails.application.routes.draw do
   # Body JSON: { "system_prompt": "...", "user_prompt": "..." }
   # Response: { ok: true, message: "...", model_id: "...", fake: false, usage: { input_tokens: ..., output_tokens: ... }, latency_ms: 123 }
   post "/llm", to: "llm#create"
+
+  mount Sidekiq::Web => "/sidekiq" # access sidekiq web UI at http://localhost:3000/sidekiq
 end

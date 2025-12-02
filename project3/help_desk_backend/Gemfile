@@ -50,5 +50,4 @@ group :test do
    gem "mocha"
 end
 
-
-gem "aws-sdk-bedrockruntime"
+gem "sidekiq", "~> 8.0"
