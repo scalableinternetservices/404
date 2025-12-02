@@ -21,6 +21,7 @@ services:
     environment:
       - RAILS_ENV=development
       - DATABASE_URL=mysql2://rails_user:password@db:3306/rails_development
+      - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY_BASE=development_secret_key_base_that_is_very_long_and_secure_for_development_only
       - AWS_SHARED_CREDENTIALS_FILE=/app/.aws/cs291_credentials
       - AWS_PROFILE=scalableinternetservices

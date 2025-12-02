@@ -11,7 +11,7 @@ class MessagesController < ApplicationController
     puts "debugging is on"
     summary_text = LlmService.summarize_conversation(conv)
     puts summary_text
-    
+
 
     render json: msgs.map { |m| message_payload(m) }
   end
@@ -35,18 +35,11 @@ class MessagesController < ApplicationController
     if msg.save
       conv.update!(last_message_at: msg.created_at)
 
+
       if role == "initiator" && conv.assigned_expert.present?
-        auto_text = LlmService.auto_response(conv, msg.content)
-        if auto_text.present?
-          conv.messages.create!(
-            sender: conv.assigned_expert,
-            sender_role: "expert",
-            content: auto_text,
-            is_auto_generated: true
-          )
-          conv.update!(last_message_at: Time.current)
-        end
-      end  
+        GenerateAutoreplyJob.perform_async(msg.id)
+      end
+
       render json: message_payload(msg), status: :created
     else
       render json: { errors: msg.errors.full_messages }, status: :unprocessable_entity

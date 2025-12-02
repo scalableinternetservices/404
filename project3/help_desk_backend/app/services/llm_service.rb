@@ -27,7 +27,7 @@ class LlmService
     messages = conversation.messages.order(:created_at)
 
     prompt = build_prompt_for_summary(conversation, messages)
-    
+
     puts prompt
 
     client = BedrockClient.new(model_id: MODEL_ID)
@@ -62,7 +62,7 @@ class LlmService
       system_prompt: "You are an expert assistant. Answer based ONLY on the expert's KB Links and Bio.",
       user_prompt: prompt
     )
-    
+
     puts prompt
 
     response[:output_text].strip
@@ -81,7 +81,7 @@ class LlmService
     A new conversation has been created.
 
     Title: "#{conversation.title}"
-    
+
     Available Experts:
     #{expert_list}
 
@@ -112,7 +112,7 @@ class LlmService
     Provide the final summary only.
     PROMPT
   end
-  
+
   def self.build_auto_response_prompt(title, user_msg, kb_links, bio, username)
     formatted_kb = kb_links.map { |l| "- #{l}" }.join("\n")
 
