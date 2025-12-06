@@ -5,9 +5,9 @@ User personas:
 1. New user registering for the first time (1 in every 10 users)
 2. Polling user that checks for updates every 5 seconds
 3. Active user that uses existing usernames to create conversations, post messages, and browse
+4. Expert user that polls expert queue, claims unassigned conversations, and responds to assigned conversations
 """
 
-import os
 import random
 import threading
 from datetime import datetime
@@ -35,8 +35,6 @@ class UserStore:
     def __init__(self):
         self.used_usernames = {}
         self.username_lock = threading.Lock()
-        self.conversations = []  # shared list of conversation ids
-        self.conversation_lock = threading.Lock()
 
     def get_random_user(self):
         with self.username_lock:
@@ -52,28 +50,23 @@ class UserStore:
             }
             return self.used_usernames[username]
 
-    def add_conversation(self, conversation_id):
-        with self.conversation_lock:
-            self.conversations.append(conversation_id)
-
-    def get_random_conversation(self):
-        with self.conversation_lock:
-            if not self.conversations:
-                return None
-            return random.choice(self.conversations)
-
 
 user_store = UserStore()
 user_name_generator = UserNameGenerator(max_users=MAX_USERS)
+
 
 class ChatBackend():
     """
     Base class for all user personas.
     Provides common authentication and API interaction methods.
-    """        
-    
+    """
+
+    def auth_headers(self, token):
+        if not token:
+            return {}
+        return { "Authorization": f"Bearer {token}" }
+
     def login(self, username, password):
-        """Login an existing user."""
         response = self.client.post(
             "/auth/login",
             json={"username": username, "password": password},
@@ -81,7 +74,8 @@ class ChatBackend():
         )
         if response.status_code == 200:
             data = response.json()
-            return user_store.store_user(username, data.get("token"), data.get("user", {}).get("id"))
+            return user_store.store_user(username, data.get("token"), data.get("user", {}).get("id")
+            )
         return None
         
     def register(self, username, password):
@@ -94,79 +88,84 @@ class ChatBackend():
             data = response.json()
             return user_store.store_user(username, data.get("token"), data.get("user", {}).get("id"))
         return None
-
-    def auth_headers(self, token):
-        if not token:
-            return {}
-        return {"Authorization": f"Bearer {token}"}
-
-    def create_conversation(self, user):
-        title = f"Conversation {random.randint(1, 1_000_000)}"
-        response = self.client.post(
-            "/conversations",
-            json={"title": title},
-            headers=self.auth_headers(user.get("auth_token")),
-            name="/conversations#create"
-        )
-        if response.status_code in (200, 201):
-            data = response.json()
-            cid = data.get("id")
-            if cid:
-                user_store.add_conversation(cid)
-            return True
-        return False
-
-    def send_message(self, user, conversation_id):
-        if not conversation_id:
-            return False
-        content = f"msg-{random.randint(1, 1_000_000)}"
-        response = self.client.post(
-            "/messages",
-            json={"conversationId": str(conversation_id), "content": content},
-            headers=self.auth_headers(user.get("auth_token")),
-            name="/messages#create"
-        )
-        return response.status_code in (200, 201)
+    
 
     def check_conversation_updates(self, user):
-        """Check for conversation updates."""
         params = {"userId": user.get("user_id")}
         if self.last_check_time:
             params["since"] = self.last_check_time.isoformat()
         
-        response = self.client.get(
+        r = self.client.get(
             "/api/conversations/updates",
             params=params,
-            headers=self.auth_headers(user.get("auth_token")),
+            headers=self.auth_headers(user["auth_token"]),
             name="/api/conversations/updates"
         )
-        
-        return response.status_code == 200
-    
+
+        return r.status_code == 200
+
     def check_message_updates(self, user):
         params = {"userId": user.get("user_id")}
         if self.last_check_time:
             params["since"] = self.last_check_time.isoformat()
-        response = self.client.get(
+
+        r = self.client.get(
             "/api/messages/updates",
             params=params,
-            headers=self.auth_headers(user.get("auth_token")),
+            headers=self.auth_headers(user["auth_token"]),
             name="/api/messages/updates"
         )
-        return response.status_code == 200
-    
+        return r.status_code == 200
+
     def check_expert_queue_updates(self, user):
         params = {"expertId": user.get("user_id")}
-        if self.last_check_time:
-            params["since"] = self.last_check_time.isoformat()
-        response = self.client.get(
+        r = self.client.get(
             "/api/expert-queue/updates",
             params=params,
             headers=self.auth_headers(user.get("auth_token")),
             name="/api/expert-queue/updates"
         )
-        return response.status_code == 200
-    
+        if r.status_code == 200:
+            data = r.json()
+            if isinstance(data, list) and len(data) > 0:
+                obj = data[0]
+                return (
+                    obj.get("waitingConversations", []),
+                    obj.get("assignedConversations", [])
+                )
+        return ([], [])
+
+    def create_conversation(self, user):
+        title = f"Conversation {random.randint(1, 1_000_000)}"
+        r = self.client.post(
+            "/conversations",
+            json={"title": title},
+            headers=self.auth_headers(user["auth_token"]),
+            name="/conversations#create"
+        )
+        if r.status_code in (200, 201):
+            data = r.json()
+            cid = data.get("id")
+            return cid
+        return None
+
+    def send_message(self, user, convo_id):
+        content = f"msg-{random.randint(1, 1_000_000)}"
+        r = self.client.post(
+            f"/messages",
+            json={"conversationId": str(convo_id), "content": content},
+            headers=self.auth_headers(user["auth_token"]),
+            name="/messages#create"
+        )
+        return r.status_code in (200, 201)
+
+    def claim_conversation(self, user, convo_id):
+        return self.client.post(
+            f"/expert/conversations/{convo_id}/claim",
+            headers=self.auth_headers(user["auth_token"]),
+            name="/expert/claim"
+        )
+
 
 class IdleUser(HttpUser, ChatBackend):
     """
@@ -174,102 +173,93 @@ class IdleUser(HttpUser, ChatBackend):
     Checks for message updates, conversation updates, and expert queue updates every 5 seconds.
     """
     weight = 10
-    wait_time = between(5, 5)  # Check every 5 seconds
+    wait_time = between(5, 5)
 
     def on_start(self):
-        """Called when a simulated user starts."""
         self.last_check_time = None
         username = user_name_generator.generate_username()
         password = username
         self.user = self.login(username, password) or self.register(username, password)
         if not self.user:
-            raise Exception(f"Failed to login or register user {username}")
+            raise Exception(f"Failed login/register {username}")
 
     @task
     def poll_for_updates(self):
-        """Poll for all types of updates."""
-        # Check conversation updates
         self.check_conversation_updates(self.user)
-        
-        # Check message updates
         self.check_message_updates(self.user)
-        
-        # Check expert queue updates
         self.check_expert_queue_updates(self.user)
-        
-        # Update last check time
         self.last_check_time = datetime.utcnow()
 
 
 class ActiveUser(HttpUser, ChatBackend):
-    """Persona: Actively creates conversations and sends messages, plus polls updates."""
-    weight = 5
-    wait_time = between(1, 3)
+    """
+    Persona: Users that actively create conversations and send messages.
+    """
+    weight = 30
+    wait_time = between(2, 5)
 
     def on_start(self):
         self.last_check_time = None
         username = user_name_generator.generate_username()
         password = username
         self.user = self.login(username, password) or self.register(username, password)
-        if not self.user:
-            raise Exception(f"Failed to init active user {username}")
-        # Optionally seed a conversation
-        self.create_conversation(self.user)
-
-    @task(3)
-    def send_message_task(self):
-        convo = user_store.get_random_conversation()
-        if convo:
-            self.send_message(self.user, convo)
-        else:
-            # If no conversation exists, create one
-            self.create_conversation(self.user)
-
-    @task(1)
-    def create_conversation_task(self):
-        # Controlled creation probability via env var
-        prob = float(os.getenv("LOCUST_CONVERSATION_CREATE_PROB", "0.3"))
-        if random.random() < prob:
-            self.create_conversation(self.user)
+        self.my_conversations = []
 
     @task(2)
-    def poll_updates_task(self):
+    def create_convo(self):
+        convo = self.create_conversation(self.user)
+        if convo:
+            self.my_conversations.append(convo)
+
+    @task(5)
+    def send_message_task(self):
+        if not self.my_conversations:
+            return
+        convo = random.choice(self.my_conversations)
+        self.send_message(self.user, convo)
+
+    @task(1)
+    def poll(self):
         self.check_conversation_updates(self.user)
-        self.check_message_updates(self.user)
-        self.check_expert_queue_updates(self.user)
         self.last_check_time = datetime.utcnow()
 
 
-class NewUser(HttpUser, ChatBackend):
-    """Persona: Primarily registration and a single conversation/message."""
-    weight = 1
-    wait_time = between(10, 20)
+class ExpertUser(HttpUser, ChatBackend):
+    """
+    Persona: Experts poll waiting conversations, claim some,
+    and send messages to conversations they have claimed.
+    """
+    weight = 10
+    wait_time = between(3, 7)
 
     def on_start(self):
         self.last_check_time = None
-        username = user_name_generator.generate_username()
+        username = f"expert_{user_name_generator.generate_username()}"
         password = username
-        self.user = self.register(username, password)
-        if not self.user:
-            # Fallback attempt login in case race caused existing username
-            self.user = self.login(username, password)
-        if not self.user:
-            raise Exception("Registration/Login failed for new user persona")
-        # Immediately create a conversation and send one message
-        if self.create_conversation(self.user):
-            convo = user_store.get_random_conversation()
-            self.send_message(self.user, convo)
+        self.user = self.login(username, password) or self.register(username, password)
+        self.claimed = []
 
-    @task
-    def occasional_poll(self):
-        # Lower intensity polling
-        self.check_conversation_updates(self.user)
-        self.check_message_updates(self.user)
+    @task(3)
+    def poll_queue(self):
+        waiting, assigned = self.check_expert_queue_updates(self.user)
         self.last_check_time = datetime.utcnow()
 
+        self.claimed = [c["id"] for c in assigned]
 
-# Guidance:
-# Run with: locust -f Locus.py --host https://YOUR_ENV.elasticbeanstalk.com --users 500 --spawn-rate 1
-# Adjust persona weights above to mirror target distribution.
-# Use environment variables to tweak creation probability:
-#   LOCUST_CONVERSATION_CREATE_PROB=0.2 locust -f Locus.py ...
+        if waiting and random.random() < 0.3:
+            convo = random.choice(waiting)
+            r = self.claim_conversation(self.user, convo["id"])
+            if r.status_code == 200:
+                self.claimed.append(convo["id"])
+
+    @task(5)
+    def respond(self):
+        if not self.claimed:
+            return
+        convo = random.choice(self.claimed)
+        self.send_message(self.user, convo)
+
+    @task(1)
+    def poll_convos(self):
+        self.check_conversation_updates(self.user)
+        self.last_check_time = datetime.utcnow()
