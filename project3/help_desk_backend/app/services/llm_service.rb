@@ -24,21 +24,42 @@ class LlmService
   end
 
   def self.summarize_conversation(conversation)
-    messages = conversation.messages.order(:created_at)
+    summary_record = ConversationSummary.find_by(conversation_id: conversation.id)
+    last_processed_id = summary_record&.last_message_id
 
-    prompt = build_prompt_for_summary(conversation, messages)
-    
-    puts prompt
+    if summary_record.nil?
+      # No summary yet: summarize all messages
+      messages = conversation.messages.order(:created_at)
+      prompt = build_prompt_for_summary(conversation, messages)
+      client = BedrockClient.new(model_id: MODEL_ID)
+      response = client.call(
+        system_prompt: "You are a helpful assistant that produces short and accurate summaries.",
+        user_prompt: prompt
+      )
+      summary_text = response[:output_text].to_s.strip
+      last_id = messages.last&.id
+      ConversationSummary.create!(conversation_id: conversation.id,
+                                  summary_text: summary_text,
+                                  last_message_id: last_id)
+      summary_text
+    else
+      # Incremental update: only new messages since last_message_id
+      new_messages = conversation.messages.where("id > ?", last_processed_id || 0).order(:created_at)
+      return summary_record.summary_text if new_messages.empty?
 
-    client = BedrockClient.new(model_id: MODEL_ID)
-
-    response = client.call(
-      system_prompt: "You are a helpful assistant that produces short and accurate summaries.",
-      user_prompt: prompt
-    )
-
-    summary = response[:output_text].to_s.strip
-    summary
+      incremental_prompt = build_prompt_for_incremental_summary(conversation,
+                                                                summary_record.summary_text,
+                                                                new_messages)
+      client = BedrockClient.new(model_id: MODEL_ID)
+      response = client.call(
+        system_prompt: "You are a helpful assistant that updates an existing summary concisely.",
+        user_prompt: incremental_prompt
+      )
+      updated_text = response[:output_text].to_s.strip
+      summary_record.update!(summary_text: updated_text,
+                             last_message_id: new_messages.last.id)
+      updated_text
+    end
   end
 
   def self.auto_response(conversation, user_message)
@@ -110,6 +131,28 @@ class LlmService
     #{formatted_messages}
 
     Provide the final summary only.
+    PROMPT
+  end
+
+  def self.build_prompt_for_incremental_summary(conversation, existing_summary, new_messages)
+    formatted_messages = new_messages.map do |m|
+      role = m.sender_role == "initiator" ? "User" : "Expert"
+      "#{role}: #{m.content}"
+    end.join("\n")
+
+    <<~PROMPT
+    Update the existing summary with the following new messages.
+    Keep the summary short and accurate. If the new messages don't change the summary materially, keep it as-is but incorporate any important details.
+
+    Conversation Title: "#{conversation.title}"
+
+    Existing Summary:
+    #{existing_summary}
+
+    New Messages:
+    #{formatted_messages}
+
+    Provide the updated summary only.
     PROMPT
   end
   
