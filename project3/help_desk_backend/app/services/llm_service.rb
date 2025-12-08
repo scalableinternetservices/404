@@ -48,10 +48,13 @@ class LlmService
     faq_links = expert.expert_profile.knowledge_base_links || []
     bio = expert.expert_profile.bio
 
+    scraped_content = WebScraperService.scrape_urls(faq_links, max_length: 5000, max_depth: 2)
+
     prompt = build_auto_response_prompt(
       conversation.title,
       user_message,
       faq_links,
+      scraped_content,
       bio,
       expert.username
     )
@@ -113,8 +116,18 @@ class LlmService
     PROMPT
   end
   
-  def self.build_auto_response_prompt(title, user_msg, kb_links, bio, username)
-    formatted_kb = kb_links.map { |l| "- #{l}" }.join("\n")
+  def self.build_auto_response_prompt(title, user_msg, kb_links, scraped_content, bio, username)
+    formatted_kb = if scraped_content.present?
+      scraped_content.map do |url, content|
+        if content.present?
+          "- #{url}\n  Content: #{content}"
+        else
+          "- #{url} (content unavailable)"
+        end
+      end.join("\n")
+    else
+      kb_links.map { |l| "- #{l}" }.join("\n")
+    end
 
     <<~PROMPT
     The expert assigned to this conversation is: #{username}.
