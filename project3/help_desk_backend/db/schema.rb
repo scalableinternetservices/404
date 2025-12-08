@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_26_215847) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_06_120000) do
+  create_table "conversation_summaries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "last_message_id"
+    t.text "summary_text", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_conversation_summaries_on_conversation_id", unique: true
+  end
+
   create_table "conversations", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "assigned_expert_id"
     t.datetime "created_at", null: false
@@ -76,6 +85,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_26_215847) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "conversation_summaries", "conversations"
   add_foreign_key "conversations", "users", column: "assigned_expert_id"
   add_foreign_key "conversations", "users", column: "initiator_id"
   add_foreign_key "expert_assignments", "conversations"
