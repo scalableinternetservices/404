@@ -351,6 +351,7 @@ DEPENDENCIES
   jwt
   mocha
   mysql2 (~> 0.5)
+  nokogiri
   puma (>= 5.0)
   rack-cors
   rails (~> 8.1.1)
