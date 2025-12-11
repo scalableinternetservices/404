@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_06_120000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_07_120000) do
   create_table "conversation_summaries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "conversation_id", null: false
     t.datetime "created_at", null: false
@@ -47,7 +47,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_06_120000) do
   create_table "expert_profiles", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.text "bio"
     t.datetime "created_at", null: false
+    t.text "kb_content"
     t.json "knowledge_base_links"
+    t.datetime "last_updated"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_expert_profiles_on_user_id"

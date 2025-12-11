@@ -21,6 +21,7 @@ Rails.application.routes.draw do
 
 
   get "/health", to: "health#index"
+  get "/githubapi/last_updated", to: "githubapi#last_updated"
 
   resources :conversations, only: [:index, :show, :create]
   resources :messages, only: [:create] do

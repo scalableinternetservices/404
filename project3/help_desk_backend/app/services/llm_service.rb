@@ -69,7 +69,16 @@ class LlmService
     faq_links = expert.expert_profile.knowledge_base_links || []
     bio = expert.expert_profile.bio
 
-    scraped_content = WebScraperService.scrape_urls(faq_links, max_length: 5000, max_depth: 2)
+    latest_update = fetch_latest_github_update(faq_links)
+
+    scraped_content = if latest_update && (expert.expert_profile.last_updated.nil? || latest_update > expert.expert_profile.last_updated)
+      content = WebScraperService.scrape_urls(faq_links, max_length: 5000, max_depth: 2)
+      expert.expert_profile.update(last_updated: latest_update, kb_content: content.to_json)
+      content
+    else
+      puts "Using cached KB content"
+      load_cached_kb_content(expert.expert_profile) || WebScraperService.scrape_urls(faq_links, max_length: 5000, max_depth: 2)
+    end
 
     prompt = build_auto_response_prompt(
       conversation.title,
@@ -93,6 +102,22 @@ class LlmService
   end
 
   private
+
+  def self.fetch_latest_github_update(links)
+    service = GithubService.new
+    links.compact.map do |link|
+      result = service.last_updated_at(link)
+      result[:last_updated_at]
+    end.compact.max
+  end
+
+  def self.load_cached_kb_content(profile)
+    return nil if profile.kb_content.blank?
+
+    JSON.parse(profile.kb_content)
+  rescue JSON::ParserError
+    nil
+  end
 
   def self.build_prompt_for_exper_user(conversation)
     experts = ExpertProfile.includes(:user).all
