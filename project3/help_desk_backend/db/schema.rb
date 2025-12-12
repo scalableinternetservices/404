@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_06_120000) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_040233) do
   create_table "conversation_summaries", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "conversation_id", null: false
     t.datetime "created_at", null: false
@@ -30,6 +30,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_06_120000) do
     t.datetime "updated_at", null: false
     t.index ["assigned_expert_id"], name: "index_conversations_on_assigned_expert_id"
     t.index ["initiator_id"], name: "index_conversations_on_initiator_id"
+    t.index ["status", "assigned_expert_id", "updated_at"], name: "idx_on_status_assigned_expert_id_updated_at_6b37c1fd32"
+    t.index ["status", "updated_at"], name: "index_conversations_on_status_and_updated_at"
+    t.index ["status"], name: "index_conversations_on_status"
   end
 
   create_table "expert_assignments", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
